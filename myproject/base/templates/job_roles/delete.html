@@ -1,0 +1,36 @@
+{% extends 'main.html' %}
+
+{% block title %}Delete Job Role - Job Roles{% endblock %}
+
+{% block page_header %}
+<h1 class="h2 mb-1">Delete Job Role</h1>
+<p class="text-muted">Confirm job role deletion</p>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center fade-in">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4 text-center">
+                <i class="fas fa-exclamation-triangle fa-4x text-danger mb-3"></i>
+                <h4>Are you sure?</h4>
+                <p>You are about to delete the job role <strong>"{{ job_role.title }}"</strong>.</p>
+                {% if job_role.interview_sessions.count > 0 %}
+                    <p class="text-danger">This role has {{ job_role.interview_sessions.count }} interview session(s) associated with it.</p>
+                {% endif %}
+                <p class="text-danger">This action cannot be undone.</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'job_role_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Delete Permanently
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

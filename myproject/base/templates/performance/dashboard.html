@@ -1,0 +1,237 @@
+{% extends 'main.html' %}
+
+{% block title %}Performance Dashboard{% endblock %}
+
+{% block page_header %}
+<h1 class="h2 mb-1">Performance Dashboard</h1>
+<p class="text-muted">Track your interview performance and progress</p>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    {% if has_data %}
+        <!-- Stats Overview -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h6 class="mb-1">Average Score</h6>
+                        <h2 class="mb-0">{{ avg_score }}%</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h6 class="mb-1">Best Score</h6>
+                        <h2 class="mb-0">{{ best_score }}%</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h6 class="mb-1">Total Sessions</h6>
+                        <h2 class="mb-0">{{ total_sessions }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body">
+                        <h6 class="mb-1">Improvement</h6>
+                        <h2 class="mb-0">
+                            {% if latest_snapshot %}
+                                {% widthratio latest_snapshot.improvement_rate 1 100 %}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Chart -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Performance Over Time</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="performanceChart" height="100"></canvas>
+                {% if not dates %}
+                    <p class="text-muted text-center mt-3">No performance data available yet. Complete some interviews to see your progress!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Domain Performance -->
+        {% if domain_names %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Performance by Domain</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="domainChart" height="100"></canvas>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Latest Snapshot -->
+        {% if latest_snapshot %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-camera me-2"></i>Latest Performance Snapshot</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <small class="text-muted">Date</small>
+                        <p><strong>{{ latest_snapshot.snapshot_date|date:"F d, Y" }}</strong></p>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted">Overall Score</small>
+                        <p><strong>{{ latest_snapshot.average_score|default:0 }}%</strong></p>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted">Sessions Completed</small>
+                        <p><strong>{{ latest_snapshot.completed_sessions|default:0 }}</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
+            <h3>No Data Available</h3>
+            <p class="text-muted">Complete some interviews to see your performance analytics.</p>
+            <a href="{% url 'session_create' %}" class="btn btn-primary mt-3">
+                Start Your First Interview
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% if has_data and dates %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Performance Over Time Chart
+    const perfCtx = document.getElementById('performanceChart').getContext('2d');
+    
+    // Prepare data
+    const dates = {{ dates|safe }};
+    const scores = {{ scores|safe }};
+    
+    new Chart(perfCtx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Average Score',
+                data: scores,
+                borderColor: 'rgb(79, 70, 229)',
+                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Score: ${context.raw}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Score (%)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                }
+            }
+        }
+    });
+
+    {% if domain_names %}
+    // Domain Performance Chart
+    const domainCtx = document.getElementById('domainChart').getContext('2d');
+    const domainNames = {{ domain_names|safe }};
+    const domainScores = {{ domain_scores|safe }};
+    
+    new Chart(domainCtx, {
+        type: 'bar',
+        data: {
+            labels: domainNames,
+            datasets: [{
+                label: 'Average Score by Domain',
+                data: domainScores,
+                backgroundColor: 'rgba(79, 70, 229, 0.7)',
+                borderColor: 'rgb(79, 70, 229)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Score: ${context.raw}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Score (%)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Domain'
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+</script>
+{% endif %}
+{% endblock %}

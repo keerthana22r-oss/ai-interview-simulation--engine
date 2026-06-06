@@ -1,0 +1,103 @@
+{% extends 'main.html' %}
+
+{% block title %}Job Roles - Interview Platform{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="h2 mb-1">Job Roles</h1>
+        <p class="text-muted">Find the perfect job role to practice for</p>
+    </div>
+    {% if user.is_staff %}
+    <div>
+        <a href="{% url 'job_role_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-2"></i>Add Job Role
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Domain</label>
+                    <select name="domain" class="form-select">
+                        <option value="">All Domains</option>
+                        {% for domain in domains %}
+                        <option value="{{ domain.id }}" {% if request.GET.domain == domain.id|stringformat:"s" %}selected{% endif %}>
+                            {{ domain.title }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Difficulty</label>
+                    <select name="difficulty" class="form-select">
+                        <option value="">All Difficulties</option>
+                        <option value="beginner" {% if request.GET.difficulty == 'beginner' %}selected{% endif %}>Beginner</option>
+                        <option value="intermediate" {% if request.GET.difficulty == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                        <option value="advanced" {% if request.GET.difficulty == 'advanced' %}selected{% endif %}>Advanced</option>
+                        <option value="expert" {% if request.GET.difficulty == 'expert' %}selected{% endif %}>Expert</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" class="form-control" placeholder="Search job roles..." value="{{ search_query }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Job Roles Grid -->
+    <div class="row">
+        {% for role in page_obj %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-info">{{ role.get_difficulty_display }}</span>
+                        <span class="badge bg-secondary">{{ role.domain.title }}</span>
+                    </div>
+                    <h5 class="card-title">{{ role.title }}</h5>
+                    <p class="card-text text-muted small">{{ role.description|truncatewords:15 }}</p>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if role.estimated_duration %}
+                                <span class="text-muted small">
+                                    <i class="fas fa-clock me-1"></i>{{ role.estimated_duration }} min
+                                </span>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'job_role_detail' role.slug %}" class="btn btn-sm btn-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No job roles found.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% include 'includes/pagination.html' %}
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'main.html' %}
+
+{% block title %}Activity Logs - Admin{% endblock %}
+
+{% block page_header %}
+<h1 class="h2 mb-1">Activity Logs</h1>
+<p class="text-muted">Monitor user activities and system events</p>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">User</label>
+                    <select name="user" class="form-select">
+                        <option value="">All Users</option>
+                        {% for u in users %}
+                        <option value="{{ u.id }}" {% if filters.user_id == u.id|stringformat:"s" %}selected{% endif %}>
+                            {{ u.username }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Action</label>
+                    <input type="text" name="action" class="form-control" placeholder="Action contains..." value="{{ filters.action }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Object Type</label>
+                    <input type="text" name="object_type" class="form-control" placeholder="Object type..." value="{{ filters.object_type }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Date From</label>
+                    <input type="date" name="date_from" class="form-control" value="{{ filters.date_from }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Date To</label>
+                    <input type="date" name="date_to" class="form-control" value="{{ filters.date_to }}">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Activity Logs Table -->
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Object Type</th>
+                        <th>Object ID</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in page_obj %}
+                    <tr>
+                        <td class="text-nowrap">{{ log.created_at|date:"Y-m-d H:i:s" }}</td>
+                        <td>
+                            <a href="?user={{ log.actor.id }}">
+                                {{ log.actor.username }}
+                            </a>
+                        </td>
+                        <td>{{ log.action }}</td>
+                        <td>{{ log.object_type|default:"—" }}</td>
+                        <td>{{ log.object_id|default:"—" }}</td>
+                        <td>{{ log.ip_address|default:"—" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No activity logs found.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% include 'includes/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

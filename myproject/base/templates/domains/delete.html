@@ -1,0 +1,36 @@
+{% extends 'main.html' %}
+
+{% block title %}Delete Domain - Domains{% endblock %}
+
+{% block page_header %}
+<h1 class="h2 mb-1">Delete Domain</h1>
+<p class="text-muted">Confirm domain deletion</p>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center fade-in">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4 text-center">
+                <i class="fas fa-exclamation-triangle fa-4x text-danger mb-3"></i>
+                <h4>Are you sure?</h4>
+                <p>You are about to delete the domain <strong>"{{ domain.title }}"</strong>.</p>
+                {% if domain.job_roles.count > 0 %}
+                    <p class="text-danger">This domain has {{ domain.job_roles.count }} job role(s) associated with it. Deleting will also remove all related job roles.</p>
+                {% endif %}
+                <p class="text-danger">This action cannot be undone.</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'domain_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Delete Permanently
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'main.html' %}
+
+{% block title %}Submit Interview - {{ session.title }}{% endblock %}
+
+{% block page_header %}
+<h1 class="h2 mb-1">Submit Interview</h1>
+<p class="text-muted">Review and submit your interview session</p>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center fade-in">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body p-4 text-center">
+                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                <h3>Ready to Submit?</h3>
+                <p>You have completed all {{ session.questions.count }} questions.</p>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Once submitted, you won't be able to change your answers.
+                </div>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'session_take' session.id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Go Back
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check-circle me-2"></i>Submit Interview
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

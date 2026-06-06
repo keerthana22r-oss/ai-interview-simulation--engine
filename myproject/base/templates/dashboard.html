@@ -1,0 +1,218 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Interview Platform{% endblock %}
+
+{% block page_header %}
+    {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Total Sessions</h6>
+                            <h2 class="mb-0">{{ total_sessions }}</h2>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-calendar-alt fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Completed</h6>
+                            <h2 class="mb-0">{{ completed_sessions }}</h2>
+                        </div>
+                        <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-check-circle fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Average Score</h6>
+                            <h2 class="mb-0">{{ avg_score }}%</h2>
+                        </div>
+                        <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-chart-line fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Notifications</h6>
+                            <h2 class="mb-0">{{ pending_notifications }}</h2>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-bell fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Sessions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Recent Sessions
+                    </h5>
+                    <a href="{% url 'session_list' %}" class="btn btn-sm btn-outline-primary">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_sessions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Job Role</th>
+                                        <th>Status</th>
+                                        <th>Score</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for session in recent_sessions %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'session_detail' session.id %}" class="text-decoration-none">
+                                                    {{ session.title }}
+                                                </a>
+                                            </td>
+                                            <td>{{ session.job_role.title }}</td>
+                                            <td>
+                                                <span class="badge 
+                                                    {% if session.status == 'completed' %}bg-success
+                                                    {% elif session.status == 'in_progress' %}bg-warning
+                                                    {% elif session.status == 'evaluated' %}bg-info
+                                                    {% else %}bg-secondary{% endif %}">
+                                                    {{ session.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if session.overall_score %}
+                                                    <span class="fw-bold">{{ session.overall_score }}%</span>
+                                                {% else %}
+                                                    <span class="text-muted">—</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ session.created_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <a href="{% url 'session_detail' session.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No interview sessions yet.</p>
+                            <a href="{% url 'session_create' %}" class="btn btn-primary">
+                                <i class="fas fa-plus-circle me-2"></i>Start Your First Interview
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a href="{% url 'session_create' %}" class="text-decoration-none">
+                                <div class="border rounded p-3 text-center hover-shadow">
+                                    <i class="fas fa-play-circle fa-2x text-primary mb-2"></i>
+                                    <h6 class="mb-0">Start New Interview</h6>
+                                    <small class="text-muted">Practice with AI</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{% url 'job_role_list' %}" class="text-decoration-none">
+                                <div class="border rounded p-3 text-center hover-shadow">
+                                    <i class="fas fa-search fa-2x text-success mb-2"></i>
+                                    <h6 class="mb-0">Browse Job Roles</h6>
+                                    <small class="text-muted">Find your perfect match</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{% url 'performance_dashboard' %}" class="text-decoration-none">
+                                <div class="border rounded p-3 text-center hover-shadow">
+                                    <i class="fas fa-chart-bar fa-2x text-info mb-2"></i>
+                                    <h6 class="mb-0">View Analytics</h6>
+                                    <small class="text-muted">Track your progress</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-shadow {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        background: #f8f9fa;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add any dashboard-specific JavaScript here
+    console.log('Dashboard loaded');
+</script>
+{% endblock %}

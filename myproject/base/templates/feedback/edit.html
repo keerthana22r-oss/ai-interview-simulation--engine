@@ -1,0 +1,57 @@
+
+{% extends 'main.html' %}
+
+{% block title %}Edit Feedback Report - {{ session.title }}{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between align-items-start">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'session_list' %}">My Sessions</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'session_detail' session.id %}">{{ session.title }}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'feedback_report' session.id %}">Feedback Report</a></li>
+                <li class="breadcrumb-item active">Edit Report</li>
+            </ol>
+        </nav>
+        <h1 class="h2 mb-1">Edit Feedback Report</h1>
+        <p class="text-muted">Update interview feedback and scores</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center fade-in">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="alert alert-danger mt-1">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                        {% if field.help_text %}
+                            <small class="text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'feedback_report' session.id %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

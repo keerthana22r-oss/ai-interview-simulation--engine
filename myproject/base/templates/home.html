@@ -1,0 +1,112 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block title %}Home - Interview Platform{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Hero Section -->
+    <div class="bg-primary bg-gradient text-white rounded-4 p-5 mb-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Master Your Next Interview</h1>
+                <p class="lead mb-4">Practice with AI-powered mock interviews, get instant feedback, and land your dream job.</p>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'register' %}" class="btn btn-light btn-lg px-4 me-2">
+                        <i class="fas fa-user-plus me-2"></i>Get Started Free
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                    </a>
+                {% else %}
+                    <a href="{% url 'dashboard' %}" class="btn btn-light btn-lg px-4">
+                        <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                    </a>
+                {% endif %}
+            </div>
+            <div class="col-lg-6 text-center d-none d-lg-block">
+                <i class="fas fa-microphone-alt fa-6x"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">Why Choose Interview Platform?</h2>
+            <p class="text-muted">Everything you need to succeed in your interviews</p>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 text-center p-4">
+                <div class="mb-3">
+                    <i class="fas fa-robot fa-3x text-primary"></i>
+                </div>
+                <h5>AI-Powered Interviews</h5>
+                <p class="text-muted">Practice with intelligent AI that simulates real interview scenarios</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 text-center p-4">
+                <div class="mb-3">
+                    <i class="fas fa-chart-line fa-3x text-success"></i>
+                </div>
+                <h5>Detailed Analytics</h5>
+                <p class="text-muted">Track your progress with comprehensive performance metrics</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 text-center p-4">
+                <div class="mb-3">
+                    <i class="fas fa-comment-dots fa-3x text-info"></i>
+                </div>
+                <h5>Instant Feedback</h5>
+                <p class="text-muted">Get detailed feedback and suggestions for improvement</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Domains -->
+    <div class="row mb-5">
+        <div class="col-12 mb-4">
+            <h2 class="fw-bold text-center">Popular Interview Domains</h2>
+        </div>
+        {% for domain in featured_domains %}
+        <div class="col-md-4 col-lg-2 mb-3">
+            <a href="{% url 'domain_detail' domain.slug %}" class="text-decoration-none">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-layer-group fa-2x text-primary mb-2"></i>
+                        <h6 class="mb-0">{{ domain.title }}</h6>
+                        <small class="text-muted">{{ domain.job_roles.count }} roles</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Popular Job Roles -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h2 class="fw-bold text-center">Popular Job Roles</h2>
+        </div>
+        {% for role in popular_roles %}
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ role.title }}</h5>
+                    <p class="card-text text-muted">{{ role.description|truncatewords:20 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary">{{ role.get_difficulty_display }}</span>
+                        <span class="text-muted small">{{ role.domain.title }}</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'job_role_detail' role.slug %}" class="btn btn-sm btn-outline-primary w-100">Learn More</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

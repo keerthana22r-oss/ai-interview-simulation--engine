@@ -1,0 +1,172 @@
+{% extends 'main.html' %}
+
+{% block title %}Edit Profile - Interview Platform{% endblock %}
+
+{% block page_header %}
+<h1 class="h2 mb-1">Edit Profile</h1>
+<p class="text-muted">Update your personal information and preferences</p>
+{% endblock %}
+
+{% block content %}
+<div class="row fade-in">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- User Form Fields -->
+                    <h5 class="mb-3">Account Information</h5>
+                    {% for field in user_form %}
+                        {% if field.name != 'password' %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="alert alert-danger mt-1 small">
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                            {% if field.help_text %}
+                                <small class="text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Profile Form Fields -->
+                    <h5 class="mb-3">Profile Information</h5>
+                    
+                    <!-- Headline -->
+                    <div class="mb-3">
+                        <label for="{{ profile_form.headline.id_for_label }}" class="form-label">Headline</label>
+                        {{ profile_form.headline }}
+                        {% if profile_form.headline.errors %}
+                            <div class="alert alert-danger mt-1 small">{{ profile_form.headline.errors }}</div>
+                        {% endif %}
+                        <small class="text-muted">{{ profile_form.headline.help_text }}</small>
+                    </div>
+                    
+                    <!-- Bio -->
+                    <div class="mb-3">
+                        <label for="{{ profile_form.bio.id_for_label }}" class="form-label">Bio</label>
+                        {{ profile_form.bio }}
+                        {% if profile_form.bio.errors %}
+                            <div class="alert alert-danger mt-1 small">{{ profile_form.bio.errors }}</div>
+                        {% endif %}
+                        <small class="text-muted">{{ profile_form.bio.help_text }}</small>
+                    </div>
+                    
+                    <!-- Experience Level and Target Role -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ profile_form.experience_level.id_for_label }}" class="form-label">Experience Level</label>
+                            {{ profile_form.experience_level }}
+                            {% if profile_form.experience_level.errors %}
+                                <div class="alert alert-danger mt-1 small">{{ profile_form.experience_level.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ profile_form.target_role.id_for_label }}" class="form-label">Target Role</label>
+                            {{ profile_form.target_role }}
+                            {% if profile_form.target_role.errors %}
+                                <div class="alert alert-danger mt-1 small">{{ profile_form.target_role.errors }}</div>
+                            {% endif %}
+                            <small class="text-muted">{{ profile_form.target_role.help_text }}</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Skills -->
+                    <div class="mb-3">
+                        <label class="form-label">Skills</label>
+                        <div class="border rounded p-3 bg-light">
+                            <div class="mb-2">
+                                <input type="text" id="skillSearch" class="form-control" placeholder="Search skills...">
+                            </div>
+                            <div id="skillCheckboxes" class="row" style="max-height: 200px; overflow-y: auto;">
+                                {% for skill in profile_form.fields.skills.queryset %}
+                                <div class="col-md-4 col-sm-6 mb-2 skill-item" data-skill-name="{{ skill.name|lower }}">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" 
+                                               name="skills" value="{{ skill.id }}" 
+                                               id="skill_{{ skill.id }}"
+                                               {% if skill in profile_form.instance.skills.all %}checked{% endif %}>
+                                        <label class="form-check-label" for="skill_{{ skill.id }}">
+                                            {{ skill.name }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <small class="text-muted">Select all skills that apply to you</small>
+                        {% if profile_form.skills.errors %}
+                            <div class="alert alert-danger mt-1 small">{{ profile_form.skills.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Resume -->
+                    <div class="mb-3">
+                        <label for="{{ profile_form.resume.id_for_label }}" class="form-label">Resume/CV</label>
+                        {{ profile_form.resume }}
+                        {% if profile_form.resume.errors %}
+                            <div class="alert alert-danger mt-1 small">{{ profile_form.resume.errors }}</div>
+                        {% endif %}
+                        {% if profile.instance.resume %}
+                            <small class="text-muted d-block">Current: <a href="{{ profile.instance.resume.url }}" target="_blank">{{ profile.instance.resume.name }}</a></small>
+                        {% endif %}
+                        <small class="text-muted">{{ profile_form.resume.help_text }}</small>
+                    </div>
+                    
+                    <!-- LinkedIn & GitHub -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ profile_form.linkedin_url.id_for_label }}" class="form-label">LinkedIn Profile</label>
+                            {{ profile_form.linkedin_url }}
+                            {% if profile_form.linkedin_url.errors %}
+                                <div class="alert alert-danger mt-1 small">{{ profile_form.linkedin_url.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ profile_form.github_url.id_for_label }}" class="form-label">GitHub Profile</label>
+                            {{ profile_form.github_url }}
+                            {% if profile_form.github_url.errors %}
+                                <div class="alert alert-danger mt-1 small">{{ profile_form.github_url.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'profile' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Skill search functionality
+    const searchInput = document.getElementById('skillSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const skillItems = document.querySelectorAll('.skill-item');
+            
+            skillItems.forEach(item => {
+                const skillName = item.getAttribute('data-skill-name');
+                if (skillName && skillName.includes(searchTerm)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+</script>
+{% endblock %}

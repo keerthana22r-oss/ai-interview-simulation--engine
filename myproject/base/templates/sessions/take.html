@@ -1,0 +1,133 @@
+{% extends 'main.html' %}
+
+{% block title %}Taking Interview - {{ session.title }}{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Session Info Header -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-1">{{ session.title }}</h4>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-briefcase me-1"></i>{{ session.job_role.title|default:"No Job Role" }}
+                    </p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-info">Question {{ question_number }} of {{ total_questions }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between mb-2">
+            <span>Overall Progress</span>
+            <span>{{ progress|floatformat:0 }}% Complete</span>
+        </div>
+        <div class="progress" style="height: 10px;">
+            <div class="progress-bar bg-success" style="width: {{ progress }}%"></div>
+        </div>
+        <div class="text-muted small mt-1">
+            {{ answered_count }} of {{ total_questions }} questions answered
+        </div>
+    </div>
+
+    <!-- Current Question Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-question-circle me-2"></i>
+                Question {{ question_number }}
+                {% if question.question_type %}
+                    <span class="badge bg-light text-dark ms-2">{{ question.get_question_type_display }}</span>
+                {% endif %}
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <h5 class="card-title">{{ question.question_text }}</h5>
+                {% if question.max_score %}
+                    <small class="text-muted">Maximum score: {{ question.max_score }} points</small>
+                {% endif %}
+            </div>
+            
+            <form method="POST" id="answerForm">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.answer_text.id_for_label }}" class="form-label fw-bold">Your Answer:</label>
+                    {{ form.answer_text }}
+                    {% if form.answer_text.help_text %}
+                        <div class="form-text">{{ form.answer_text.help_text }}</div>
+                    {% endif %}
+                    {% if form.answer_text.errors %}
+                        <div class="alert alert-danger mt-2">
+                            {{ form.answer_text.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'session_detail' session.id %}'">
+                        <i class="fas fa-save me-2"></i>Save & Exit
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-paper-plane me-2"></i>
+                        {% if is_last_question %}
+                            Submit & Continue
+                        {% else %}
+                            Next Question
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tips Card -->
+    <div class="card bg-light">
+        <div class="card-body">
+            <h6><i class="fas fa-lightbulb text-warning me-2"></i>Tips for Answering:</h6>
+            <ul class="mb-0">
+                <li>Take your time to think before answering</li>
+                <li>Use the STAR method for behavioral questions (Situation, Task, Action, Result)</li>
+                <li>Be specific and provide concrete examples from your experience</li>
+                <li>Keep your answers clear, concise, and relevant to the question</li>
+                <li>Don't worry about being perfect - just do your best!</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-save functionality (optional)
+    let autoSaveTimeout;
+    const answerTextarea = document.getElementById('{{ form.answer_text.id_for_label }}');
+    
+    if (answerTextarea) {
+        answerTextarea.addEventListener('input', function() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(function() {
+                // Auto-save the answer
+                const form = document.getElementById('answerForm');
+                const formData = new FormData(form);
+                
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        console.log('Auto-saved');
+                    }
+                }).catch(error => console.error('Auto-save failed:', error));
+            }, 30000); // Auto-save every 30 seconds
+        });
+    }
+</script>
+{% endblock %}

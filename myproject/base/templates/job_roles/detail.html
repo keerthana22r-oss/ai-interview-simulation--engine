@@ -1,0 +1,113 @@
+{% extends 'main.html' %}
+
+{% block title %}{{ job_role.title }} - Interview Platform{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between align-items-start">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'job_role_list' %}">Job Roles</a></li>
+                <li class="breadcrumb-item active">{{ job_role.title }}</li>
+            </ol>
+        </nav>
+        <h1 class="h2 mb-1">{{ job_role.title }}</h1>
+        <div class="mb-2">
+            <span class="badge bg-info me-1">{{ job_role.get_difficulty_display }}</span>
+            <span class="badge bg-secondary">{{ job_role.domain.title }}</span>
+        </div>
+        <p class="text-muted">{{ job_role.description }}</p>
+    </div>
+    {% if user.is_staff %}
+    <div>
+        <a href="{% url 'job_role_edit' job_role.slug %}" class="btn btn-sm btn-outline-primary">Edit Role</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Key Responsibilities -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Key Responsibilities</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ job_role.responsibilities|default:"Information not available."|linebreaks }}</p>
+                </div>
+            </div>
+
+            <!-- Required Skills -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-code me-2"></i>Required Skills</h5>
+                </div>
+                <div class="card-body">
+                    {% if job_role.required_skills.all %}
+                        {% for skill in job_role.required_skills.all %}
+                            <span class="badge bg-primary me-1 mb-1">{{ skill.name }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No specific skills listed.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Common Questions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i>Common Interview Questions</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Practice with our AI-generated questions tailored for this role.</p>
+                    <a href="{% url 'session_create' %}?job_role={{ job_role.id }}" class="btn btn-primary">
+                        <i class="fas fa-play-circle me-2"></i>Start Practice Interview
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Quick Info -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Quick Info</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Estimated Duration</small>
+                        <strong>{{ job_role.estimated_duration|default:"Not specified" }} minutes</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Total Interviews</small>
+                        <strong>{{ job_role.interview_sessions.count }} sessions</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Average Score</small>
+                        <strong>
+                            {% with avg=job_role.interview_sessions.aggregate.overall_score__avg %}
+                                {{ avg|default:"N/A" }}%
+                            {% endwith %}
+                        </strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Interview Card -->
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-microphone-alt fa-3x mb-3"></i>
+                    <h5>Ready to Practice?</h5>
+                    <p class="small">Get personalized interview questions and feedback</p>
+                    <a href="{% url 'session_create' %}?job_role={{ job_role.id }}" class="btn btn-light">
+                        Start Interview Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

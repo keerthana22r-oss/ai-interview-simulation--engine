@@ -1,0 +1,60 @@
+{% extends 'main.html' %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="h2 mb-1">Notifications</h1>
+        <p class="text-muted">Stay updated with your interview progress</p>
+    </div>
+    <div>
+        <a href="{% url 'notification_mark_all_read' %}" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-check-double me-1"></i>Mark All Read
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="card">
+        <div class="card-body p-0">
+            {% for notification in page_obj %}
+            <div class="border-bottom p-3 {% if not notification.is_read %}bg-light{% endif %}">
+                <div class="d-flex">
+                    <div class="flex-shrink-0 me-3">
+                        <i class="fas fa-{% if notification.notification_type == 'report' %}file-alt{% elif notification.notification_type == 'reminder' %}clock{% else %}info-circle{% endif %} fa-2x text-muted"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="mb-1">{{ notification.title }}</h6>
+                            <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                        <p class="mb-1">{{ notification.message }}</p>
+                        <div class="mt-2">
+                            {% if not notification.is_read %}
+                                <a href="{% url 'notification_mark_read' notification.id %}" class="btn btn-sm btn-outline-success me-2">
+                                    <i class="fas fa-check me-1"></i>Mark Read
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'notification_delete' notification.id %}" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash me-1"></i>Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5">
+                <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No notifications yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% include 'includes/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,274 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+    <div class="container-fluid px-4">
+        <!-- Brand/Logo -->
+        <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+            <i class="fas fa-microphone-alt me-2"></i>
+            Interview Platform
+        </a>
+        
+        <!-- Mobile Toggle Button -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <!-- Navbar Content -->
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <!-- Left Navigation -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-briefcase me-1"></i> Interviews
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'domain_list' %}">
+                                    <i class="fas fa-layer-group me-2"></i> Domains
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'job_role_list' %}">
+                                    <i class="fas fa-role me-2"></i> Job Roles
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'session_list' %}">
+                                    <i class="fas fa-calendar-alt me-2"></i> My Sessions
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'session_create' %}">
+                                    <i class="fas fa-plus-circle me-2"></i> New Session
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    {% if user.is_staff %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-cog me-1"></i> Admin
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'skill_list' %}">
+                                        <i class="fas fa-code me-2"></i> Skills
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'domain_create' %}">
+                                        <i class="fas fa-plus-circle me-2"></i> Add Domain
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'job_role_create' %}">
+                                        <i class="fas fa-plus-circle me-2"></i> Add Job Role
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'activity_log_list' %}">
+                                        <i class="fas fa-history me-2"></i> Activity Logs
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+            
+            <!-- Search Bar -->
+            {% if user.is_authenticated %}
+                <form class="d-flex mx-3" action="{% url 'global_search' %}" method="GET">
+                    <div class="input-group">
+                        <input class="form-control form-control-sm" type="search" name="q" placeholder="Search..." aria-label="Search" style="width: 250px;">
+                        <button class="btn btn-sm btn-outline-light" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            {% endif %}
+            
+            <!-- Right Navigation -->
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                {% if user.is_authenticated %}
+                    <!-- Notifications -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            {% if pending_notifications %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ pending_notifications }}
+                                </span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end notification-dropdown" style="width: 350px;">
+                            <li>
+                                <h6 class="dropdown-header">
+                                    Notifications
+                                    <a href="{% url 'notification_mark_all_read' %}" class="float-end text-decoration-none small">
+                                        Mark all read
+                                    </a>
+                                </h6>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% if notifications %}
+                                {% for notification in notifications|slice:":5" %}
+                                    <li>
+                                        <a class="dropdown-item {% if not notification.is_read %}bg-light{% endif %}" href="{% url 'notification_mark_read' notification.id %}">
+                                            <div class="d-flex">
+                                                <div class="flex-shrink-0">
+                                                    <i class="fas fa-{% if notification.notification_type == 'report' %}file-alt{% elif notification.notification_type == 'reminder' %}clock{% else %}info-circle{% endif %} mt-1"></i>
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <div class="fw-bold">{{ notification.title }}</div>
+                                                    <small class="text-muted">{{ notification.message|truncatechars:50 }}</small>
+                                                    <br>
+                                                    <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                {% endfor %}
+                                <li>
+                                    <a class="dropdown-item text-center" href="{% url 'notification_list' %}">
+                                        View All Notifications
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <div class="dropdown-item text-center text-muted">
+                                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                        No new notifications
+                                    </div>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    
+                    <!-- User Menu -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            {% if user.userprofile.avatar %}
+                                <img src="{{ user.userprofile.avatar.url }}" alt="{{ user.username }}" class="rounded-circle me-1" style="width: 30px; height: 30px; object-fit: cover;">
+                            {% else %}
+                                <i class="fas fa-user-circle fa-lg"></i>
+                            {% endif %}
+                            {{ user.username|truncatechars:15 }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'profile' %}">
+                                    <i class="fas fa-id-card me-2"></i> My Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'profile_edit' %}">
+                                    <i class="fas fa-edit me-2"></i> Edit Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'performance_dashboard' %}">
+                                    <i class="fas fa-chart-line me-2"></i> Performance
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'saved_questions_list' %}">
+                                    <i class="fas fa-bookmark me-2"></i> Saved Questions
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'change_password' %}">
+                                    <i class="fas fa-key me-2"></i> Change Password
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <!-- Guest Menu -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary text-white px-3 ms-2" href="{% url 'register' %}">
+                            <i class="fas fa-user-plus me-1"></i> Register
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<style>
+    .notification-dropdown {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .notification-dropdown .dropdown-item {
+        white-space: normal;
+        padding: 12px 16px;
+    }
+    
+    .navbar .dropdown-menu {
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        border: none;
+        margin-top: 8px;
+    }
+    
+    @media (max-width: 768px) {
+        .navbar .form-control {
+            width: 100% !important;
+        }
+    }
+</style>
+
+<script>
+    // Load notifications dynamically
+    function loadNotifications() {
+        $.ajax({
+            url: '/ajax/user-stats/',
+            type: 'GET',
+            success: function(data) {
+                const badge = document.querySelector('.fa-bell + .badge');
+                if (data.unread_notifications > 0) {
+                    if (!badge) {
+                        const newBadge = document.createElement('span');
+                        newBadge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger';
+                        newBadge.textContent = data.unread_notifications;
+                        document.querySelector('.fa-bell').parentElement.appendChild(newBadge);
+                    } else {
+                        badge.textContent = data.unread_notifications;
+                        badge.style.display = 'inline-block';
+                    }
+                } else if (badge) {
+                    badge.style.display = 'none';
+                }
+            }
+        });
+    }
+    
+    // Refresh notifications every 30 seconds if user is authenticated
+    {% if user.is_authenticated %}
+    setInterval(loadNotifications, 30000);
+    {% endif %}
+</script>

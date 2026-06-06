@@ -1,0 +1,112 @@
+/* Responsive Design Styles */
+
+/* Tablet Devices (768px - 1024px) */
+@media (max-width: 1024px) {
+    .container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    
+    h1 {
+        font-size: 1.875rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Mobile Devices (481px - 768px) */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    h2 {
+        font-size: 1.25rem;
+    }
+    
+    .grid-cols-1\\.md\\:grid-cols-2,
+    .grid-cols-1\\.md\\:grid-cols-3,
+    .grid-cols-1\\.md\\:grid-cols-4 {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        gap: 1rem;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .table-responsive table {
+        min-width: 600px;
+    }
+}
+
+/* Small Mobile Devices (up to 480px) */
+@media (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .toast {
+        left: 1rem;
+        right: 1rem;
+        min-width: auto;
+        bottom: 1rem;
+    }
+    
+    .form-input {
+        font-size: 16px; /* Prevents zoom on mobile */
+    }
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        background: white;
+        font-size: 12pt;
+    }
+    
+    .container {
+        width: 100%;
+        max-width: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    a {
+        text-decoration: none;
+        color: black;
+    }
+    
+    .card, .bg-white {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}
