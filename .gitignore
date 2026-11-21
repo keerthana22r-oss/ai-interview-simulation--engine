@@ -1,0 +1,33 @@
+# Python & Virtual Environments
+myenv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables & secrets (CRITICAL: NEVER COMMIT REAL KEYS)
+*.env
+.env
+.env.*
+!.env.example
+
+# Database
+db.sqlite3
+db.sqlite3-journal
+*.db
+
+# Media & Static collection
+media/
+staticfiles/
+
+# Logs
+logs/
+*.log
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
