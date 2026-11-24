@@ -181,21 +181,6 @@ Open **`http://127.0.0.1:8000`** in your browser.
 
 ---
 
-## 🚀 One-Click Cloud Deployment (Render / Railway)
-
-1. Connect your repository to **Render** or **Railway**.
-2. Specify build command:
-   ```bash
-   pip install -r requirements.txt && python myproject/manage.py collectstatic --no-input
-   ```
-3. Specify start command:
-   ```bash
-   gunicorn myproject.wsgi:application --chdir myproject
-   ```
-4. Add `GEMINI_API_KEY` and `SECRET_KEY` in the cloud environment dashboard.
-
----
-
 ## 🔮 Roadmap & Future Enhancements
 
 - [ ] **Speech-to-Text & Audio Delivery**: Integrate Whisper API / Web Speech API for voice-driven conversational mock interviews.
